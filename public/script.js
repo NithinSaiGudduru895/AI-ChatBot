@@ -155,4 +155,3 @@ messageInput.addEventListener('keydown', (event) => {
     }
 });
 emojiButton.addEventListener('click', () => { messageInput.value += '🙂'; messageInput.focus(); });
-closeChatbotButton.addEventListener('click', () => document.body.classList.toggle('chatbot-minimized'));
