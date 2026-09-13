@@ -6,7 +6,7 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
 
 app.use(express.json({ limit: '12mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
