@@ -4,19 +4,17 @@ const path = require('path');
 require('dotenv').config();
 
 const app = express();
-
+const PORT = process.env.PORT || 3000;
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
+const MODEL = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
 
 app.use(express.json({ limit: '12mb' }));
-app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.post('/api/chat', async (req, res) => {
     try {
         if (!API_KEY) {
-            return res.status(500).json({
-                error: 'Server API key is not configured.'
-            });
+            return res.status(500).json({ error: 'Server API key is not configured.' });
         }
 
         const { message = '', file = null } = req.body || {};
@@ -54,12 +52,7 @@ app.post('/api/chat', async (req, res) => {
                     'x-goog-api-key': API_KEY
                 },
                 body: JSON.stringify({
-                    contents: [
-                        {
-                            role: 'user',
-                            parts
-                        }
-                    ]
+                    contents: [{ role: 'user', parts }]
                 })
             }
         );
@@ -67,18 +60,15 @@ app.post('/api/chat', async (req, res) => {
         const data = await response.json();
 
         if (!response.ok) {
-            const detail =
-                data?.error?.message ||
+            const detail = data?.error?.message ||
                 `Gemini request failed with status ${response.status}`;
 
-            return res.status(response.status).json({
-                error: detail
-            });
+            return res.status(response.status).json({ error: detail });
         }
 
         const text = data?.candidates?.[0]?.content?.parts
-            ?.filter(part => part.text)
-            .map(part => part.text)
+            ?.filter((part) => part.text)
+            .map((part) => part.text)
             .join('\n');
 
         if (!text) {
@@ -90,15 +80,14 @@ app.post('/api/chat', async (req, res) => {
         res.json({ text });
     } catch (error) {
         console.error(error);
-
         res.status(500).json({
             error: 'Unable to contact Gemini. Check the server logs.'
         });
     }
 });
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 module.exports = app;
